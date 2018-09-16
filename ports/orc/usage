@@ -8,3 +8,4 @@ The package orc is compatible with built-in CMake targets:
     find_library(ORC_LIBRARY NAMES orc liborc)
 
     target_link_libraries(main PRIVATE ${ORC_LIBRARY} protobuf::libprotoc protobuf::libprotobuf Snappy::snappy ${LZ4_LIBRARY} ZLIB::ZLIB)
+
