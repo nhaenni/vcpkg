@@ -1,0 +1,43 @@
+diff --git a/cmake/install.cmake b/cmake/install.cmake
+index fb42de1..346c245 100644
+--- a/cmake/install.cmake
++++ b/cmake/install.cmake
+@@ -1,9 +1,12 @@
+ include(GNUInstallDirs)
+ 
++if(NOT BUILD_LITE_FORM)
+ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/protobuf.pc.cmake
+                ${CMAKE_CURRENT_BINARY_DIR}/protobuf.pc @ONLY)
++else()
+ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/protobuf-lite.pc.cmake
+                ${CMAKE_CURRENT_BINARY_DIR}/protobuf-lite.pc @ONLY)
++endif()
+ 
+ set(_protobuf_libraries libprotobuf libprotobuf-lite)
+ if (protobuf_BUILD_PROTOC_BINARIES)
+@@ -15,10 +18,12 @@ foreach(_library ${_protobuf_libraries})
+     PROPERTY INTERFACE_INCLUDE_DIRECTORIES
+     $<BUILD_INTERFACE:${protobuf_source_dir}/src>
+     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
++  if((BUILD_LITE_FORM AND NOT "${_library}" STREQUAL "libprotobuf") OR (NOT BUILD_LITE_FORM AND NOT "${_library}" STREQUAL "libprotobuf-lite"))
+   install(TARGETS ${_library} EXPORT protobuf-targets
+     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT ${_library}
+     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT ${_library}
+     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT ${_library})
++  endif()
+ endforeach()
+ 
+ if (protobuf_BUILD_PROTOC_BINARIES)
+@@ -26,7 +31,11 @@ if (protobuf_BUILD_PROTOC_BINARIES)
+     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT protoc)
+ endif (protobuf_BUILD_PROTOC_BINARIES)
+ 
+-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/protobuf.pc ${CMAKE_CURRENT_BINARY_DIR}/protobuf-lite.pc DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
++if(BUILD_LITE_FORM)
++install(FILES ${CMAKE_CURRENT_BINARY_DIR}/protobuf-lite.pc DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
++else()
++install(FILES ${CMAKE_CURRENT_BINARY_DIR}/protobuf.pc DESTINATION "${CMAKE_INSTALL_LIBDIR}/pkgconfig")
++endif()
+ 
+ file(STRINGS extract_includes.bat.in _extract_strings
+   REGEX "^copy")
